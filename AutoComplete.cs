@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualBasic;
 
 namespace AutoComplete
 {
@@ -11,6 +10,11 @@ namespace AutoComplete
         public string Name;
         public string Surname;
         public string Patronymic;
+
+        public override string ToString()
+        {
+            return string.Join(" ", Surname?.Trim(), Name?.Trim(), Patronymic?.Trim()).Trim();
+        }
     }
 
     public class AutoCompleter
@@ -24,20 +28,10 @@ namespace AutoComplete
                 throw new ArgumentNullException();
             
             _fullNames = new List<string>();
+            
             foreach (var fullName in fullNames)
             {
-                var surName = string.Empty;
-                var name = string.Empty;
-                var patronymic = string.Empty;
-
-                if (fullName.Surname != null)
-                    surName = fullName.Surname.Trim();
-                if (fullName.Name != null)
-                    name = fullName.Name.Trim();
-                if (fullName.Patronymic != null)
-                    patronymic = fullName.Patronymic.Trim();
-
-                var fullNameStr = (surName + " " + name + " " + patronymic).Trim();
+                var fullNameStr = fullName.ToString();
                 if (fullNameStr == string.Empty)
                     throw new ArgumentException();
                 _fullNames.Add(fullNameStr);
@@ -47,16 +41,15 @@ namespace AutoComplete
         public List<string> Search(string prefix)
         {
             //Реализуйте алгоритм поиска по префиксу фио, как составить фио смотри условия задачи.
-            if (prefix == null)
-                throw new ArgumentNullException();
+            if (string.IsNullOrEmpty(prefix) || string.IsNullOrWhiteSpace(prefix))
+                throw new ArgumentException();
+            
             if (prefix.Length > 100) // нужно ли считать пробелы ?
                 throw new ArgumentOutOfRangeException();
             
-            var prefixTrimmed = prefix.Trim();
-            if (prefixTrimmed == string.Empty)
-                throw new ArgumentException();
+            // нужно ли как-то преобразовывать prefix (убирать пробелы в начале, конце и лишние посередине)?
 
-            return _fullNames.Where(fullName => fullName.StartsWith(prefixTrimmed)).ToList();
+            return _fullNames.Where(fullName => fullName.StartsWith(prefix)).ToList();
         }
     }
 }
